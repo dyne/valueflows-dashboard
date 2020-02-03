@@ -14,7 +14,7 @@ import Map from './map'
 import Dashboard from './dashboard'
 import "./index.css";
 import gql from "graphql-tag";
-
+import {Globe, MapPin} from 'react-feather'
 
 const ALL_RESOURCES = gql`
   query allEconomicResources {
@@ -32,12 +32,13 @@ const ALL_RESOURCES = gql`
 const URI = "http://localhost:8888/graphql";
 
 const client = new ApolloClient({
-  uri: URI
+  uri: URI,
+  
 });
 
 
 function Home() {
-  const { loading, error, data } = useQuery(ALL_RESOURCES);
+  const { loading, error, data } = useQuery(ALL_RESOURCES, {fetchPolicy: 'no-cache'});
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
   return (
@@ -63,12 +64,18 @@ const App = () => (
         px={2}
         color='white'
         alignItems='center'>
-        <Text p={2} fontWeight='bold'>VF::Demo</Text>
+          <Flex p={2} alignItems="center">
+            <Globe size="20" color="#fff" />
+            <Text ml={2} fontWeight='bold'>ValueNetwork</Text>
+          </Flex>
         <Box mx='auto' />
         <Nav exact activeClassName='active' to="/">
           Dashboard
         </Nav>
-        <Nav activeClassName='active' to="/map">Map</Nav>
+        <Nav activeClassName='active' to="/map">
+          
+          <MapPin size="20" color="#fff" />
+          Map</Nav>
       </Header>
       <Home />
     </Router>
@@ -86,9 +93,16 @@ const Nav = styled(NavLink)`
   text-decoration: none;
   margin-right: 32px;
   position: relative;
+  display: flex;
   color: white;
+  svg {
+    margin-right: 8px;
+  }
   &.active {
     color: #4dc19c;
+    svg {
+      stroke: "#4dc19c"
+    }
     :before {
       position: absolute;
       content: "";

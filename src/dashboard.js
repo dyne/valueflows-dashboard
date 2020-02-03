@@ -67,7 +67,13 @@ const Dashboard = ({data}) => {
   const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT)  
 
   return (
-      <Box sx={{width: "680px", margin: "0 auto", marginTop: '20px'}}>
+      <Box sx={{width: "680px", 
+        margin: "0 auto", 
+        marginTop: '20px',
+        background: "white",
+        padding: "4px",
+        borderRadius: "8px",
+        marginBottom: "20px"}}>
         <Box
           sx={{
             px: 4,
