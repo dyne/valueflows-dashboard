@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from "graphql-tag";
 import { useQuery } from '@apollo/react-hooks';
-import {Box, Text} from 'rebass'
+import {Box, Text, Image, Flex} from 'rebass'
 import styled from 'styled-components'
 
 const ALL_EVENTS = gql`
@@ -32,41 +32,54 @@ export const EventsList = () => {
             data.allEconomicEvents
             .reverse()
             .map((item, i) => (
-              <Box sx={{
-                borderRadius: "4px",
-                border: "1px solid #dadada",
+              <Flex sx={{
+                borderBottom: "1px solid #dadada",
               }} 
               p={3} 
               mb={2}
               key={i}>
-                <Text>{item.action + ' '}
-                {item.resourceQuantityHasNumericalValue + ' '}
-                {item.resourceQuantityHasUnit} of {' '}
-                {item.action === 'transfer' ? 
-                item.toResourceInventoriedAs.name
-                : item.resourceInventoriedAs.name}
-                </Text>
-                <Note>{item.resourceDescription}</Note>
-                {item.resourceConformsTo && 
-                <TagsList mt={2}>{item.resourceConformsTo
-                  .split(",")
-                  .map((tag, i) => (<Box
-                    key={i}
-                    mr={1}
-                    sx={{
-                      display: 'inline-block',
-                      color: 'white',
-                      bg: '#9f75cf',
-                      px: 2,
-                      py: 1,
-                      fontSize: "14px",
-                      borderRadius: 9999,
-                    }}>
-                    #{tag}
-                  </Box>))}
-                </TagsList>
-                }
-              </Box>
+                <Image
+                  src='https://picsum.photos/id/1025/130/130'
+                  variant='avatar'
+                  mr={3}
+                  sx={{
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "100%",}}
+                />
+                <Box>
+                  <Flex mb={1}>
+                    <Text sx={{fontWeight: 700, marginRight: "4px"}} >Jo Freeman</Text>
+                    <Text>{' ' + item.action + ' '}
+                    {item.resourceQuantityHasNumericalValue + ' '}
+                    {item.resourceQuantityHasUnit} of {' '}
+                    {item.action === 'transfer' ? 
+                    item.toResourceInventoriedAs.name
+                    : item.resourceInventoriedAs.name}
+                    </Text>
+                  </Flex>
+                  <Note>{item.resourceDescription}</Note>
+                  {item.resourceConformsTo && 
+                  <TagsList mt={2}>{item.resourceConformsTo
+                    .split(",")
+                    .map((tag, i) => (<Box
+                      key={i}
+                      mr={1}
+                      sx={{
+                        display: 'inline-block',
+                        color: 'white',
+                        bg: '#9f75cf',
+                        px: 2,
+                        py: 1,
+                        fontSize: "14px",
+                        borderRadius: 9999,
+                      }}>
+                      #{tag}
+                    </Box>))}
+                  </TagsList>
+                  }
+                </Box>
+              </Flex>
             ))
           )
     
@@ -74,4 +87,7 @@ export const EventsList = () => {
 
 const TagsList = styled(Box)`
 `
-const Note = styled(Text)``
+const Note = styled(Text)`
+color: #2e2e2e;
+font-weight: 300;
+`
