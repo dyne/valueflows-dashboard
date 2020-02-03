@@ -64,8 +64,9 @@ const Dashboard = ({data}) => {
   const units = [{value: 'each', label: 'Each'},
                  {value: 'kilo', label: 'Kilo'}]
   
-  const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT)
-    return (
+  const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT)  
+
+  return (
       <Box sx={{width: "680px", margin: "0 auto", marginTop: '20px'}}>
         <Box
           sx={{
@@ -96,40 +97,7 @@ const Dashboard = ({data}) => {
               sx={{fontSize: "32px",
                 fontWeight: "700"}}
             >Jo Freeman</Text>
-            <Box 
-            sx={{width: "300px"}} mt={2} ml={3}
-            as="form"
-            onSubmit={e => {
-            e.preventDefault();
-            let currentLocation = null
-            if (lgn !== '' && lat !== '') {
-              currentLocation = lgn + ',' + lat
-            } 
-            console.log(tags)
-            const variables = {
-              action: action.value,
-              resourceQuantityHasUnit: unit,
-              resourceQuantityHasNumericalValue: parseFloat(quantity),
-              resourceInventoriedAs: resource.value,
-              toResourceInventoriedAs: toResource.value,
-              currentLocation: currentLocation,
-              resourceDescription: resourceDescription,
-              resourceConformsTo: tags.map(tag => tag.value).join(',')
-            }
-            createEconomicEvent({ variables: variables });
-            setAction('')
-            setQuantity(0)
-            setUnit('')
-            setLong('')
-            setLat('')
-            setTags([])
-            setResource('')
-            setToResource('')
-            setResourceDescription('')
-            return null
-          }}
-        >
-
+            <Box sx={{width: "300px"}} mt={2} ml={3}>
           {action === '' ? 
           <Select 
             placeholder="select an action..." 
@@ -144,7 +112,7 @@ const Dashboard = ({data}) => {
           options={options}
           value={action}
           onChange={(v) => setAction(v)} />
-
+          
           {action.value === 'transfer' ?
           <Box mt={2}>
             <Box mb={2}>
@@ -157,11 +125,21 @@ const Dashboard = ({data}) => {
             </Box>
             <Label sx={{fontSize: "13px"}}>New resource name</Label>
             <SelectResource
+              canCreate
               resource={toResource}
               setResource={setToResource}
               options={data.allEconomicResources.map(r => ({value: r.name, label: r.name}))}
             />
           </Box> : 
+          action.value === 'produce' ?
+          <Box mt={2} mb={2}>
+          <SelectResource
+            canCreate
+            resource={resource}
+            setResource={setResource}
+            options={data.allEconomicResources.map(r => ({value: r.name, label: r.name}))}
+          />
+          </Box> :
           <Box mt={2} mb={2}>
           <SelectResource
             resource={resource}
@@ -234,7 +212,37 @@ const Dashboard = ({data}) => {
             width: "100%",
             background: "#267e63",
             height: "40px"
-          }} mt={3}>Submit</Button>
+          }} 
+          mt={3}
+          onClick={e => {
+            e.preventDefault();
+            let currentLocation = null
+            if (lgn !== '' && lat !== '') {
+              currentLocation = lgn + ',' + lat
+            } 
+            const variables = {
+              action: action.value,
+              resourceQuantityHasUnit: unit,
+              resourceQuantityHasNumericalValue: parseFloat(quantity),
+              resourceInventoriedAs: resource.value,
+              toResourceInventoriedAs: toResource.value,
+              currentLocation: currentLocation,
+              resourceDescription: resourceDescription,
+              resourceConformsTo: tags.map(tag => tag.value).join(',')
+            }
+            createEconomicEvent({ variables: variables });
+            setAction('')
+            setQuantity(0)
+            setUnit('')
+            setLong('')
+            setLat('')
+            setTags([])
+            setResource('')
+            setToResource('')
+            setResourceDescription('')
+            return null
+          }}
+          >Submit</Button>
           </>
           }
         </Box>
@@ -251,12 +259,26 @@ const Dashboard = ({data}) => {
 
 
 
-const SelectResource = ({resource, setResource, options}) => {
+const SelectResource = ({resource, setResource, options, canCreate}) => {
+    
     return (
+      canCreate ? 
       <Box>
       <CreatableSelect
         isClearable
         placeholder="Select or create a new resource..."
+        onChange={(newValue, actionMeta) => {
+          setResource(newValue)
+        }}
+        onInputChange={(inputValue, actionMeta) => {}}
+        options={options}
+        value={resource}
+      />
+      </Box>
+      : <Box>
+      <Select
+        isClearable
+        placeholder="Select a resource..."
         onChange={(newValue, actionMeta) => {
           setResource(newValue)
         }}

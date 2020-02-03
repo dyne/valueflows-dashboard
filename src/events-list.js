@@ -50,7 +50,7 @@ export const EventsList = () => {
                 <Box>
                   <Flex mb={1}>
                     <Text sx={{fontWeight: 700, marginRight: "4px"}} >Jo Freeman</Text>
-                    <Text>{' ' + item.action + ' '}
+                    <Text>{' ' + item.action + 'd '}
                     {item.resourceQuantityHasNumericalValue + ' '}
                     {item.resourceQuantityHasUnit} of {' '}
                     {item.action === 'transfer' ? 
