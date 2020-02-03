@@ -20,7 +20,13 @@ const WrapResourceQuantityUnit = styled(Select)`
   flex: 1;
 `
 
-const Dashboard = ({data}) => {
+const Note = styled(Text)`
+  color: #2e2e2e;
+  font-weight: 300;
+`
+
+
+const Dashboard = ({data, intents}) => {
   const [action, setAction] = useState('')
   const [note, setNote] = useState('')
   const [quantity, setQuantity] = useState(0)
@@ -48,9 +54,12 @@ const Dashboard = ({data}) => {
   const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT, {refetchQueries: ["allEconomicEvents"]})  
   const [createIntent, {intentData}] = useMutation(CREATE_INTENT, {refetchQueries: ["allEconomicEvents"]})  
   return (
-      <Box sx={{width: "680px", 
-        margin: "0 auto", 
-        marginTop: '20px',
+    <Box sx={{
+      width: "900px",
+      margin: "0 auto", 
+      marginTop: '20px'}}>
+      <Flex>
+      <Box sx={{width: "640px", 
         background: "white",
         padding: "4px",
         borderRadius: "8px",
@@ -330,6 +339,36 @@ const Dashboard = ({data}) => {
         <Title mt={4} pb={2} mb={2} pl={3} sx={{fontWeight: 800, borderBottom: "1px solid #dadada"}}>Recent activities</Title>
         <EventsList />
       </Box>
+      <Box p={2} ml={2} sx={{bg: "white", borderRadius: "8px", width: "240px", marginBottom: "20px"}}>
+      <Title pb={2} mt={1} mb={2} sx={{fontWeight: 800, borderBottom: "1px solid #dadada"}}>Your offers & requests</Title>
+        {intents.allIntents.map((intent, i) => (
+          <Box key={i} mt={2} pb={2} sx={{borderBottom: "1px solid #dadada"}}>
+            <Text sx={{fontSize: "12px",
+                        fontWeight: 800,
+                        textTransform:" uppercase"}}>{intent.action}</Text>
+            <Note>{intent.description}</Note>
+            <Box mt={2}>{intent.resourceConformsTo
+                    .split(",")
+                    .map((tag, i) => (<Box
+                      key={i}
+                      mr={1}
+                      sx={{
+                        display: 'inline-block',
+                        color: 'white',
+                        bg: '#9f75cf',
+                        px: 2,
+                        py: 1,
+                        fontSize: "14px",
+                        borderRadius: 9999,
+                      }}>
+                      #{tag}
+                    </Box>))}
+                  </Box>
+          </Box>
+        ))}
+      </Box>
+      </Flex>
+    </Box>
     );
   }
 

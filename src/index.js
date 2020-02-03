@@ -40,7 +40,7 @@ function Home() {
         </div>
       </Route>
       <Route exact path="/">
-        <Dashboard data={data} />
+        <Dashboard data={data} intents={intents}/>
       </Route>
     </Switch>
   )
@@ -72,6 +72,9 @@ const App = () => (
     </Router>
   </ApolloProvider>
 );
+
+
+
 
 const Header = styled(Flex)`
   height: 60px;
