@@ -8,7 +8,7 @@ const ALL_EVENTS = gql`
   query allEconomicEvents {
     allEconomicEvents {
       action
-      note
+      resourceDescription
       resourceInventoriedAs {
         name
       }
@@ -18,6 +18,7 @@ const ALL_EVENTS = gql`
       resourceQuantityHasNumericalValue
       resourceQuantityHasUnit
       currentLocation
+      resourceConformsTo
     }
   }
 `;
@@ -45,11 +46,32 @@ export const EventsList = () => {
                 item.toResourceInventoriedAs.name
                 : item.resourceInventoriedAs.name}
                 </Text>
-                <Note>{item.note}</Note>
+                <Note>{item.resourceDescription}</Note>
+                {item.resourceConformsTo && 
+                <TagsList mt={2}>{item.resourceConformsTo
+                  .split(",")
+                  .map((tag, i) => (<Box
+                    key={i}
+                    mr={1}
+                    sx={{
+                      display: 'inline-block',
+                      color: 'white',
+                      bg: '#9f75cf',
+                      px: 2,
+                      py: 1,
+                      fontSize: "14px",
+                      borderRadius: 9999,
+                    }}>
+                    #{tag}
+                  </Box>))}
+                </TagsList>
+                }
               </Box>
             ))
           )
     
 }
 
+const TagsList = styled(Box)`
+`
 const Note = styled(Text)``

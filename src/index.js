@@ -23,6 +23,8 @@ const ALL_RESOURCES = gql`
       resourceQuantityHasNumericalValue
       resourceQuantityHasUnit
       currentLocation
+      note
+      conformsTo
     }
   }
 `;

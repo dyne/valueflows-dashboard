@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {Box, Flex, Button, Text} from 'rebass'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable';
-import { Label, Input } from '@rebass/forms'
+import { Label, Input, Textarea } from '@rebass/forms'
 import { EventsList } from './events-list';
 import gql from "graphql-tag";
 import {  useMutation } from '@apollo/react-hooks';
@@ -17,6 +17,8 @@ const CREATE_ECONOMIC_EVENT = gql`
     $resourceInventoriedAs: String,
     $toResourceInventoriedAs: String,
     $currentLocation: String
+    $resourceConformsTo: String
+    $resourceDescription: String
   ) {
     createEconomicEvent(event: {
       action: $action,
@@ -24,7 +26,9 @@ const CREATE_ECONOMIC_EVENT = gql`
       resourceQuantityHasNumericalValue: $resourceQuantityHasNumericalValue,
       resourceInventoriedAs: $resourceInventoriedAs,
       toResourceInventoriedAs: $toResourceInventoriedAs,
-      currentLocation: $currentLocation
+      currentLocation: $currentLocation,
+      resourceConformsTo: $resourceConformsTo
+      resourceDescription: $resourceDescription
     }) {
       economicEventId
     }
@@ -49,6 +53,7 @@ const Dashboard = ({data}) => {
   const [inputValue, setInputValue] = useState('')
   const [resource, setResource] = useState('')
   const [toResource, setToResource] = useState('')
+  const [resourceDescription, setResourceDescription] = useState('')
   const options = [
     { value: 'transfer', label: 'Transfer' },
     { value: 'consume', label: 'Consume' },
@@ -69,14 +74,16 @@ const Dashboard = ({data}) => {
           if (lgn !== '' && lat !== '') {
             currentLocation = lgn + ',' + lat
           } 
-          console.log(currentLocation)
+          console.log(tags)
           const variables = {
             action: action.value,
             resourceQuantityHasUnit: unit,
             resourceQuantityHasNumericalValue: parseFloat(quantity),
             resourceInventoriedAs: resource.value,
             toResourceInventoriedAs: toResource.value,
-            currentLocation: currentLocation
+            currentLocation: currentLocation,
+            resourceDescription: resourceDescription,
+            resourceConformsTo: tags.map(tag => tag.value).join(',')
           }
           createEconomicEvent({ variables: variables });
           setAction('')
@@ -87,6 +94,7 @@ const Dashboard = ({data}) => {
           setTags([])
           setResource('')
           setToResource('')
+          setResourceDescription('')
           return null
         }}
         sx={{width: "800px", margin: "0 auto", marginTop: '20px'}}>
@@ -175,7 +183,20 @@ const Dashboard = ({data}) => {
               />
             </Box>
           </Flex>
-          <Box mt={2}><SelectTag tags={tags} inputValue={inputValue} setTags={setTags} setInputValue={setInputValue}/></Box>
+          <Box mt={2} p={2} sx={{borderRadius: "6px", bg: "#dadada"}}>
+          <Box>
+            <Label sx={{fontSize: '13px'}} htmlFor='comment'>Add a resource description</Label>
+            <Textarea
+              sx={{borderRadius: '4px', bg: "#fff", border: '1px solid hsl(0,0%,80%)'}}
+              id='comment'
+              name='comment'
+              onChange={e => setResourceDescription(e.target.value)}
+            />
+          </Box>
+          <Box mt={2}>
+            <Label sx={{fontSize: '13px'}} htmlFor='tags'>Add some tags</Label>
+            <SelectTag tags={tags} inputValue={inputValue} setTags={setTags} setInputValue={setInputValue}/></Box>
+        </Box>
         </> : null
         }
         

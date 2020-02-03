@@ -20,7 +20,9 @@ export default class Pins extends PureComponent {
                       latitude: Number(location[0]),
                       name: resource.name,
                       quantity: resource.resourceQuantityHasNumericalValue,
-                      unit: resource.resourceQuantityHasUnit
+                      unit: resource.resourceQuantityHasUnit,
+                      note: resource.note,
+                      tags: resource.conformsTo
                     })
                   })
     return pins
