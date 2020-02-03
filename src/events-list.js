@@ -9,6 +9,7 @@ const ALL_EVENTS = gql`
     allEconomicEvents {
       action
       resourceDescription
+      note
       resourceInventoriedAs {
         name
       }
@@ -43,22 +44,26 @@ export const EventsList = () => {
                   variant='avatar'
                   mr={3}
                   sx={{
-                    width: "60px",
-                    height: "60px",
+                    width: "40px",
+                    height: "40px",
                     borderRadius: "100%",}}
                 />
                 <Box>
                   <Flex mb={1}>
                     <Text sx={{fontWeight: 700, marginRight: "4px"}} >Jo Freeman</Text>
-                    <Text>{' ' + item.action + 'd '}
+                    <Text>{' ' + item.action + ' '}
                     {item.resourceQuantityHasNumericalValue + ' '}
-                    {item.resourceQuantityHasUnit} of {' '}
+                    {item.resourceQuantityHasUnit} 
+                    {item.action !== "work" &&
+                     <span>{' of '}
                     {item.action === 'transfer' ? 
                     item.toResourceInventoriedAs.name
                     : item.resourceInventoriedAs.name}
+                    </span>
+                    }
                     </Text>
                   </Flex>
-                  <Note>{item.resourceDescription}</Note>
+                  <Note>{item.resourceDescription || item.note}</Note>
                   {item.resourceConformsTo && 
                   <TagsList mt={2}>{item.resourceConformsTo
                     .split(",")

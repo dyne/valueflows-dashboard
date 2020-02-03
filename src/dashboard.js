@@ -12,6 +12,7 @@ import {  useMutation } from '@apollo/react-hooks';
 const CREATE_ECONOMIC_EVENT = gql`
   mutation createEconomicEvent(
     $action: String!,
+    $note: String,
     $resourceQuantityHasUnit: String,
     $resourceQuantityHasNumericalValue: Float,
     $resourceInventoriedAs: String,
@@ -22,6 +23,7 @@ const CREATE_ECONOMIC_EVENT = gql`
   ) {
     createEconomicEvent(event: {
       action: $action,
+      note: $note,
       resourceQuantityHasUnit: $resourceQuantityHasUnit,
       resourceQuantityHasNumericalValue: $resourceQuantityHasNumericalValue,
       resourceInventoriedAs: $resourceInventoriedAs,
@@ -46,6 +48,7 @@ const WrapResourceQuantityUnit = styled(Select)`
 
 const Dashboard = ({data}) => {
   const [action, setAction] = useState('')
+  const [note, setNote] = useState('')
   const [quantity, setQuantity] = useState(0)
   const [unit, setUnit] = useState('')
   const [lgn, setLong] = useState('')
@@ -59,12 +62,14 @@ const Dashboard = ({data}) => {
     { value: 'transfer', label: 'Transfer' },
     { value: 'consume', label: 'Consume' },
     { value: 'produce', label: 'Produce' },
+    { value: 'work', label: 'Work' },
     { value: 'use', label: 'Use' }
   ]
   const units = [{value: 'each', label: 'Each'},
+                 {value: 'hour', label: 'Hour'},
                  {value: 'kilo', label: 'Kilo'}]
   
-  const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT)  
+  const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT, {refetchQueries: ["allEconomicEvents"]})  
 
   return (
       <Box sx={{width: "680px", 
@@ -146,13 +151,14 @@ const Dashboard = ({data}) => {
             options={data.allEconomicResources.map(r => ({value: r.name, label: r.name}))}
           />
           </Box> :
+          action.value !== 'work' ?
           <Box mt={2} mb={2}>
           <SelectResource
             resource={resource}
             setResource={setResource}
             options={data.allEconomicResources.map(r => ({value: r.name, label: r.name}))}
           />
-          </Box>
+          </Box> : null
           }
         
           <Flex mt={2}>
@@ -213,6 +219,17 @@ const Dashboard = ({data}) => {
           </Box>
           </> : null
           }
+          {action.value === 'work' &&
+            <Box mt={2}>
+              <Label sx={{fontSize: '13px'}} htmlFor='note'>Add a description</Label>
+              <Textarea
+                sx={{borderRadius: '4px', bg: "#fff", border: '1px solid hsl(0,0%,80%)'}}
+                id='note'
+                name='note'
+                onChange={e => setNote(e.target.value)}
+              />
+            </Box>
+          }
           
           <Button sx={{
             width: "100%",
@@ -227,6 +244,7 @@ const Dashboard = ({data}) => {
               currentLocation = lgn + ',' + lat
             } 
             const variables = {
+              note: note,
               action: action.value,
               resourceQuantityHasUnit: unit,
               resourceQuantityHasNumericalValue: parseFloat(quantity),
@@ -238,6 +256,7 @@ const Dashboard = ({data}) => {
             }
             createEconomicEvent({ variables: variables });
             setAction('')
+            setNote('')
             setQuantity(0)
             setUnit('')
             setLong('')
