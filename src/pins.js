@@ -45,3 +45,37 @@ export default class Pins extends PureComponent {
       </Marker>)
   }
 }
+
+export class IntentPins extends PureComponent {
+  render() {
+    const {data, onClick} = this.props;
+    const pins = data
+                  .filter((intent) => (intent.atLocation !== null))
+                  .map((intent) => {
+                    const location = intent.atLocation.split(",")
+                    return ({
+                      longitude: Number(location[1]),
+                      latitude: Number(location[0]),
+                      note: intent.description,
+                      tags: intent.conformsTo
+                    })
+                  })
+    return pins
+    .map((intent, index) => 
+      <Marker key={`marker-${index}`} longitude={intent.longitude} latitude={intent.latitude}>
+        <svg
+          height={SIZE}
+          viewBox="0 0 24 24"
+          style={{
+            cursor: 'pointer',
+            fill: '#4381d3',
+            stroke: 'none',
+            transform: `translate(${-SIZE / 2}px,${-SIZE}px)`
+          }}
+          onClick={() => onClick(intent)}
+        >
+          <path d={ICON} />
+        </svg>
+      </Marker>)
+  }
+}

@@ -13,21 +13,10 @@ import {
 import Map from './map'
 import Dashboard from './dashboard'
 import "./index.css";
-import gql from "graphql-tag";
 import {Globe, MapPin} from 'react-feather'
+import {ALL_RESOURCES} from './graphql/queries'
+import {ALL_INTENTS} from './graphql/queries'
 
-const ALL_RESOURCES = gql`
-  query allEconomicResources {
-    allEconomicResources {
-      name
-      resourceQuantityHasNumericalValue
-      resourceQuantityHasUnit
-      currentLocation
-      note
-      conformsTo
-    }
-  }
-`;
 
 const URI = "http://localhost:8888/graphql";
 
@@ -39,13 +28,15 @@ const client = new ApolloClient({
 
 function Home() {
   const { loading, error, data } = useQuery(ALL_RESOURCES, {fetchPolicy: 'no-cache'});
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :(</p>;
+  const { loading: loadingIntents, error: errorIntents , data: intents } = useQuery(ALL_INTENTS);
+  if (loading || loadingIntents ) return <p>Loading...</p>;
+  if (error || errorIntents) return <p>Error :(</p>;
+    console.log(intents)
   return (
     <Switch>
       <Route exact path="/map">
         <div id="map">
-          <Map data={data} />
+          <Map data={data} intents={intents} />
         </div>
       </Route>
       <Route exact path="/">

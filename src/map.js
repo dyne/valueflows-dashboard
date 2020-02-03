@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import MapGL, {Popup, NavigationControl, FullscreenControl, ScaleControl} from 'react-map-gl';
 import ControlPanel from './control-panel';
-import Pins from './pins';
-import ResourceInfo from './resource-info';
+import Pins, {IntentPins} from './pins';
+import ResourceInfo, {OfferInfo} from './resource-info';
 
 const TOKEN = 'pk.eyJ1IjoiYmVybmluaSIsImEiOiJjazYyMHc5OTUwNDBlM2tuNnR0N2VrY3luIn0.gYMbW8z_4rjh-gYu4uEojA'; // Set your mapbox token here
 
@@ -44,7 +44,7 @@ export default class Map extends Component {
 
   _renderPopup() {
     const {popupInfo} = this.state;
-
+    console.log(popupInfo)
     return (
       popupInfo && (
         <Popup
@@ -55,7 +55,10 @@ export default class Map extends Component {
           closeOnClick={false}
           onClose={() => this.setState({popupInfo: null})}
         >
-          <ResourceInfo info={popupInfo} />
+          {popupInfo.quantity ?
+            <ResourceInfo info={popupInfo} /> :
+            <OfferInfo info={popupInfo} />
+          }
         </Popup>
       )
     );
@@ -63,6 +66,7 @@ export default class Map extends Component {
 
   render() {
     const {viewport} = this.state;
+    console.log(this.props)
     return (
    
       <MapGL
@@ -74,7 +78,7 @@ export default class Map extends Component {
         mapboxApiAccessToken={TOKEN}
       >
         <Pins data={this.props.data.allEconomicResources} onClick={(resource) => this.setState({ popupInfo: resource })} />
-
+        <IntentPins data={this.props.intents.allIntents}  onClick={(resource) => this.setState({ popupInfo: resource })} />
         {this._renderPopup()}
 
         <div style={fullscreenControlStyle}>

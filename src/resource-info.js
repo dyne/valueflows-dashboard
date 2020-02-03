@@ -38,6 +38,32 @@ export default class CityInfo extends PureComponent {
   }
 }
 
+export  const OfferInfo = ({info}) => (
+  <Box>
+    <Description mt={2}>{info.note}</Description>
+    {info.tags && 
+    <Box mt={2}>
+      {info.tags
+      .split(",")
+      .map((tag, i) => (<Box
+        key={i}
+        mr={1}
+        sx={{
+          display: 'inline-block',
+          color: 'white',
+          bg: '#9f75cf',
+          px: 2,
+          py: 1,
+          fontSize: "14px",
+          borderRadius: 9999,
+        }}>
+        #{tag}
+      </Box>))}
+    </Box>
+    }
+  </Box>
+)
+
 const Title = styled(Text)`
   font-size: 14px;
   font-weight: 700;

@@ -5,37 +5,11 @@ import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable';
 import { Label, Input, Textarea } from '@rebass/forms'
 import { EventsList } from './events-list';
-import gql from "graphql-tag";
+import {CREATE_ECONOMIC_EVENT, CREATE_INTENT} from './graphql/mutations'
 import {  useMutation } from '@apollo/react-hooks';
 
 
-const CREATE_ECONOMIC_EVENT = gql`
-  mutation createEconomicEvent(
-    $action: String!,
-    $note: String,
-    $resourceQuantityHasUnit: String,
-    $resourceQuantityHasNumericalValue: Float,
-    $resourceInventoriedAs: String,
-    $toResourceInventoriedAs: String,
-    $currentLocation: String
-    $resourceConformsTo: String
-    $resourceDescription: String
-  ) {
-    createEconomicEvent(event: {
-      action: $action,
-      note: $note,
-      resourceQuantityHasUnit: $resourceQuantityHasUnit,
-      resourceQuantityHasNumericalValue: $resourceQuantityHasNumericalValue,
-      resourceInventoriedAs: $resourceInventoriedAs,
-      toResourceInventoriedAs: $toResourceInventoriedAs,
-      currentLocation: $currentLocation,
-      resourceConformsTo: $resourceConformsTo
-      resourceDescription: $resourceDescription
-    }) {
-      economicEventId
-    }
-  }
-`;
+
 const Title = styled(Text)`
   font-size: 16px;
   letter-spacing: 1px;
@@ -63,14 +37,16 @@ const Dashboard = ({data}) => {
     { value: 'consume', label: 'Consume' },
     { value: 'produce', label: 'Produce' },
     { value: 'work', label: 'Work' },
-    { value: 'use', label: 'Use' }
+    { value: 'use', label: 'Use' },
+    { value: 'offer', label: 'Offer' },
+    { value: 'request', label: 'Request' },
   ]
   const units = [{value: 'each', label: 'Each'},
                  {value: 'hour', label: 'Hour'},
                  {value: 'kilo', label: 'Kilo'}]
   
   const [createEconomicEvent, {economicData}] = useMutation(CREATE_ECONOMIC_EVENT, {refetchQueries: ["allEconomicEvents"]})  
-
+  const [createIntent, {intentData}] = useMutation(CREATE_INTENT, {refetchQueries: ["allEconomicEvents"]})  
   return (
       <Box sx={{width: "680px", 
         margin: "0 auto", 
@@ -144,14 +120,14 @@ const Dashboard = ({data}) => {
           </Box> : 
           action.value === 'produce' ?
           <Box mt={2} mb={2}>
-          <SelectResource
-            canCreate
-            resource={resource}
-            setResource={setResource}
-            options={data.allEconomicResources.map(r => ({value: r.name, label: r.name}))}
-          />
+            <SelectResource
+              canCreate
+              resource={resource}
+              setResource={setResource}
+              options={data.allEconomicResources.map(r => ({value: r.name, label: r.name}))}
+            />
           </Box> :
-          action.value !== 'work' ?
+          action.value === 'consume' || action.value === 'use'  ?
           <Box mt={2} mb={2}>
           <SelectResource
             resource={resource}
@@ -160,23 +136,25 @@ const Dashboard = ({data}) => {
           />
           </Box> : null
           }
-        
-          <Flex mt={2}>
-          <Input
-              sx={{width: '140px', borderRadius: '4px', border: '1px solid hsl(0,0%,80%)'}}
-              mr={2}
-              onChange={(e) => setQuantity(e.target.value)}
-              id='quantity'
-              name='quantity'
-              type='number'
-              placeholder='00.00'
-            />
-            <WrapResourceQuantityUnit
-              placeholder="Select a unit" 
-              options={units}
-              onChange={(val) => setUnit(val.value)}  
-            />
-          </Flex>
+          {action.value === 'offer' || action.value === 'request'  ?
+            null :
+            <Flex mt={2}>
+              <Input
+                  sx={{width: '140px', borderRadius: '4px', border: '1px solid hsl(0,0%,80%)'}}
+                  mr={2}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  id='quantity'
+                  name='quantity'
+                  type='number'
+                  placeholder='00.00'
+                />
+                <WrapResourceQuantityUnit
+                  placeholder="Select a unit" 
+                  options={units}
+                  onChange={(val) => setUnit(val.value)}  
+                />
+            </Flex>}
+          
           {action.value === "transfer" || action.value === "produce" ?
           <>
             <Flex mt={2}>
@@ -204,23 +182,50 @@ const Dashboard = ({data}) => {
               </Box>
             </Flex>
             <Box mt={2} p={2} sx={{borderRadius: "6px", bg: "#dadada"}}>
-            <Box>
-              <Label sx={{fontSize: '13px'}} htmlFor='comment'>Add a resource description</Label>
-              <Textarea
-                sx={{borderRadius: '4px', bg: "#fff", border: '1px solid hsl(0,0%,80%)'}}
-                id='comment'
-                name='comment'
-                onChange={e => setResourceDescription(e.target.value)}
-              />
-            </Box>
-            <Box mt={2}>
+              <Box>
+                <Label sx={{fontSize: '13px'}} htmlFor='comment'>Add a resource description</Label>
+                <Textarea
+                  sx={{borderRadius: '4px', bg: "#fff", border: '1px solid hsl(0,0%,80%)'}}
+                  id='comment'
+                  name='comment'
+                  onChange={e => setResourceDescription(e.target.value)}
+                />
+              </Box>
+              <Box mt={2}>
               <Label sx={{fontSize: '13px'}} htmlFor='tags'>Add some tags</Label>
               <SelectTag tags={tags} inputValue={inputValue} setTags={setTags} setInputValue={setInputValue}/></Box>
-          </Box>
+            </Box>
           </> : null
           }
-          {action.value === 'work' &&
-            <Box mt={2}>
+          {action.value === 'offer' || action.value === 'request'  ?
+          <Flex mt={2}>
+            <Box mr={2}>
+              <Label sx={{fontSize: '13px'}} htmlFor='longitude'>Longitude</Label>
+              <Input
+                sx={{borderRadius: '4px', border: '1px solid hsl(0,0%,80%)'}}
+                id='longitude'
+                name='longitude'
+                type='text'
+                placeholder='52.3728103'
+                onChange={e => setLong(e.target.value)}
+              />
+            </Box>
+            <Box>
+              <Label sx={{fontSize: '13px'}} htmlFor='latitude'>Latitude</Label>
+              <Input
+                sx={{borderRadius: '4px', border: '1px solid hsl(0,0%,80%)'}}
+                id='latitude'
+                name='latitude'
+                type='text'
+                placeholder='4.898097,17'
+                onChange={e => setLat(e.target.value)}
+              />
+            </Box>
+          </Flex>
+          : null
+          }
+          {action.value === 'work' || action.value === 'offer' || action.value === 'request'  ?
+            <Box mt={2} p={2} sx={{borderRadius: "6px", bg: "#dadada"}}>
               <Label sx={{fontSize: '13px'}} htmlFor='note'>Add a description</Label>
               <Textarea
                 sx={{borderRadius: '4px', bg: "#fff", border: '1px solid hsl(0,0%,80%)'}}
@@ -228,9 +233,56 @@ const Dashboard = ({data}) => {
                 name='note'
                 onChange={e => setNote(e.target.value)}
               />
-            </Box>
+              <Label sx={{fontSize: '13px'}} htmlFor='tags'>Add some tags</Label>
+              <SelectTag tags={tags} inputValue={inputValue} setTags={setTags} setInputValue={setInputValue}/>
+            </Box> : null
           }
-          
+
+          {action.value === 'offer' || action.value === 'request' ?
+          <Button sx={{
+            width: "100%",
+            background: "#267e63",
+            height: "40px"
+          }} 
+          mt={3}
+          onClick={e => {
+            e.preventDefault();
+            let atLocation = null
+            let provider
+            let receiver
+            if (action.value === 'offer') {
+              provider = 'Jo Freeman'
+            }
+            if (action.value === 'request') {
+              receiver = 'Jo Freeman'
+            }
+            if (lgn !== '' && lat !== '') {
+              atLocation = lgn + ',' + lat
+            } 
+            const variables = {
+              provider: provider,
+              receiver: receiver,
+              description: note,
+              action: action.value,
+              availableQuantityHasUnit: unit,
+              availableQuantityHasNumericalValue: parseFloat(quantity),
+              atLocation: atLocation,
+              resourceConformsTo: tags.map(tag => tag.value).join(',')
+            }
+            createIntent({ variables: variables });
+            setAction('')
+            setNote('')
+            setQuantity(0)
+            setUnit('')
+            setLong('')
+            setLat('')
+            setTags([])
+            setResource('')
+            setToResource('')
+            setResourceDescription('')
+            return null
+          }}
+          >Submit</Button> : 
           <Button sx={{
             width: "100%",
             background: "#267e63",
@@ -268,13 +320,14 @@ const Dashboard = ({data}) => {
             return null
           }}
           >Submit</Button>
+          }
           </>
           }
         </Box>
           </Box>
           </Flex>
         
-        <Title mt={4} pb={2} mb={2} sx={{fontWeight: 800, borderBottom: "1px solid #dadada"}}>Recent economic activities</Title>
+        <Title mt={4} pb={2} mb={2} pl={3} sx={{fontWeight: 800, borderBottom: "1px solid #dadada"}}>Recent activities</Title>
         <EventsList />
       </Box>
     );

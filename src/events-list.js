@@ -1,29 +1,8 @@
 import React from 'react';
-import gql from "graphql-tag";
 import { useQuery } from '@apollo/react-hooks';
 import {Box, Text, Image, Flex} from 'rebass'
 import styled from 'styled-components'
-
-const ALL_EVENTS = gql`
-  query allEconomicEvents {
-    allEconomicEvents {
-      action
-      resourceDescription
-      note
-      resourceInventoriedAs {
-        name
-      }
-      toResourceInventoriedAs {
-        name
-      }
-      resourceQuantityHasNumericalValue
-      resourceQuantityHasUnit
-      currentLocation
-      resourceConformsTo
-    }
-  }
-`;
-
+import {ALL_EVENTS} from './graphql/queries'
 
 export const EventsList = () => {
   const { loading, error, data } = useQuery(ALL_EVENTS);
@@ -52,13 +31,17 @@ export const EventsList = () => {
                   <Flex mb={1}>
                     <Text sx={{fontWeight: 700, marginRight: "4px"}} >Jo Freeman</Text>
                     <Text>{' ' + item.action + ' '}
-                    {item.resourceQuantityHasNumericalValue + ' '}
-                    {item.resourceQuantityHasUnit} 
-                    {item.action !== "work" &&
-                     <span>{' of '}
-                    {item.action === 'transfer' ? 
-                    item.toResourceInventoriedAs.name
-                    : item.resourceInventoriedAs.name}
+                    {item.action === 'offer' || item.action === 'request' ? null
+                    : <span>
+                      {item.resourceQuantityHasNumericalValue + ' '}
+                      {item.resourceQuantityHasUnit} 
+                      {item.action !== "work" &&
+                      <span>{' of '}
+                      {item.action === 'transfer' ? 
+                      item.toResourceInventoriedAs.name
+                      : item.resourceInventoriedAs.name}
+                      </span>
+                      }
                     </span>
                     }
                     </Text>
